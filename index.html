@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robozão Agendamentos</title>
+    <style>
+        :root { --p: #00a8ff; --bg: #f0f2f5; --card: #ffffff; --txt: #333; }
+        [data-theme="dark"] { --bg: #121417; --card: #1e2126; --txt: #f5f6fa; }
+        
+        body { font-family: Arial, sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 15px; }
+        .container { max-width: 400px; margin: auto; background: var(--card); padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        h1 { text-align: center; color: var(--p); margin-bottom: 5px; }
+        .sub { text-align: center; font-size: 14px; margin-bottom: 20px; opacity: 0.8; }
+
+        .btn-tema { width: 100%; border: none; background: none; color: var(--p); cursor: pointer; font-weight: bold; margin-bottom: 15px; }
+
+        .campo { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; background: var(--card); color: var(--txt); font-size: 16px; }
+
+        /* Botões de Veículo que funcionam no clique */
+        .veiculos { display: flex; gap: 10px; margin-bottom: 15px; }
+        .v-box { flex: 1; text-align: center; padding: 12px; background: #eee; border-radius: 8px; cursor: pointer; border: 2px solid transparent; font-weight: bold; color: #333; }
+        .v-box.ativo { border-color: var(--p); background: #00a8ff; color: white; }
+
+        .btn-agendar { width: 100%; padding: 18px; background: #25d366; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(37,211,102,0.3); }
+        .btn-agendar:active { transform: scale(0.95); }
+    </style>
+</head>
+<body data-theme="light">
+
+    <button class="btn-tema" onclick="mudarTema()">🌓 MUDAR TEMA</button>
+
+    <div class="container">
+        <h1>🤖 ROBOZÃO</h1>
+        <div class="sub">Lava Jato de Itiúba, BA</div>
+
+        <div class="veiculos">
+            <div id="btnMoto" class="v-box ativo" onclick="selV('Moto', 'btnMoto')">MOTO</div>
+            <div id="btnCarro" class="v-box" onclick="selV('Carro', 'btnCarro')">CARRO</div>
+            <div id="btnOutro" class="v-box" onclick="selV('Outros', 'btnOutro')">OUTROS</div>
+        </div>
+
+        <input type="hidden" id="tipoVeiculo" value="Moto">
+
+        <div class="campo">
+            <label>Seu Nome</label>
+            <input type="text" id="nome" placeholder="Digite seu nome">
+        </div>
+
+        <div class="campo">
+            <label>Placa do Veículo</label>
+            <input type="text" id="placa" placeholder="Opcional" style="text-transform: uppercase;">
+        </div>
+
+        <div class="campo">
+            <label>Data</label>
+            <input type="date" id="data">
+        </div>
+
+        <div class="campo">
+            <label>Hora</label>
+            <input type="time" id="hora">
+        </div>
+
+        <div class="campo">
+            <label>Pagamento</label>
+            <select id="pagamento">
+                <option value="Dinheiro">💵 Dinheiro (No Local)</option>
+                <option value="PIX (Gerar QR Code)">⚡ PIX (Gerar QR Code)</option>
+            </select>
+        </div>
+
+        <button class="btn-agendar" onclick="fazerPedido()">✅ AGENDAR NO WHATSAPP</button>
+    </div>
+
+    <script>
+        // Função para mudar o tema
+        function mudarTema() {
+            const b = document.body;
+            b.setAttribute('data-theme', b.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+        }
+
+        // Função para selecionar veículo e deixar o botão azul
+        function selV(valor, idBotao) {
+            document.getElementById('tipoVeiculo').value = valor;
+            document.querySelectorAll('.v-box').forEach(x => x.classList.remove('ativo'));
+            document.getElementById(idBotao).classList.add('ativo');
+        }
+
+        // Função principal que CRIA a URL e abre o WhatsApp
+        function fazerPedido() {
+            const nome = document.getElementById('nome').value;
+            const placa = document.getElementById('placa').value || 'Não informada';
+            const veiculo = document.getElementById('tipoVeiculo').value;
+            const data = document.getElementById('data').value;
+            const hora = document.getElementById('hora').value;
+            const pg = document.getElementById('pagamento').value;
+
+            if(!nome || !data || !hora) {
+                alert("Fábio, preencha o Nome, Data e Hora para o agendamento funcionar!");
+                return;
+            }
+
+            const dataBr = data.split('-').reverse().join('/');
+            
+            // Aqui é onde a mágica acontece: montamos o link do seu WhatsApp
+            const numeroDono = "5575991879611";
+            const texto = `*NOVO AGENDAMENTO - ROBOZÃO* 🤖%0A%0A👤 *Cliente:* ${nome}%0A🚗 *Veículo:* ${veiculo}%0A🆔 *Placa:* ${placa.toUpperCase()}%0A📅 *Data:* ${dataBr}%0A⏰ *Hora:* ${hora}%0A💳 *Pagamento:* ${pg}%0A%0A_Favor confirmar disponibilidade!_`;
+
+            const urlZap = `https://wa.me/${numeroDono}?text=${texto}`;
+            
+            // Abre o link
+            window.open(urlZap, '_blank');
+        }
+    </script>
+</body>
+</html>
